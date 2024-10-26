@@ -1,0 +1,43 @@
+version: '3.4'
+
+networks:
+  dev:
+    driver: bridge
+
+services:
+
+  pg-db:
+    image: postgres:latest
+    container_name: pg-db
+    environment:
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=postgres
+        - POSTGRES_DATABASE=StorageManagementSystemDB
+    ports:
+    - "5433:5432"
+    restart: always
+    volumes:
+        - app_data:/var/lib/postgresql/data
+    networks:
+        - dev    
+
+
+  server-app:
+    image: server-app
+    container_name: server-app
+    depends_on:
+        - pg-db
+    build:
+        dockerfile: storage-management-system/Dockerfile
+    ports:
+        - "2137:80"
+    environment:
+        - ConnectionStrings__DbConnection=Host=pg-db:5432; Database=StorageManagementSystemDB; Username=postgres; Password=postgres;
+        - ASPNETCORE_URLS=http://+:80
+        - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+        - dev 
+        
+
+volumes:
+    app_data:
