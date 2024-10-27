@@ -3,20 +3,21 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace storage_management_system.Model.Entities
 {
+    [Table("User")]
     public class User
     {
-        [Key]
         public int Id { get; set; }
-        public int Company_id { get; set; }
-        public string Username { get; set; }
-        [Required]
-        public string First_name { get; set; }
-        [Required]
-        public string Last_name { get; set; }
-        public bool Administrative { get; set; }
-        public bool Service {  get; set; }
-        public string Email { get; set; }
-        [Required]
-        public string Password { get; set; }
+        public int CompanyId { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public required string FirstName { get; set; }
+        public required string LastName { get; set; }
+        public bool Administrative { get; set; } = false;
+        public bool Service { get; set; } = false;
+        public string Email { get; set; } = string.Empty;
+        public required string Password { get; set; }
+
+        public required Company Company { get; set; }
+        public required ICollection<Access> Accesses { get; set; }
+        public required ICollection<UserAction> UserActions { get; set; } 
     }
 }

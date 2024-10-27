@@ -17,6 +17,18 @@ namespace storage_management_system.Data
             optionsBuilder.UseNpgsql(_configuration.GetConnectionString("DbConnection"));
         }
 
+        public DbSet<Company> Companies { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Storage> Storages { get; set; }
+        public DbSet<Row> Rows { get; set; }
+        public DbSet<Section> Sections { get; set; }
+        public DbSet<Box> Boxes { get; set; }
+        public DbSet<Access> Accesses { get; set; }
+        public DbSet<UserAction> UserActions { get; set; }
+        public DbSet<Item> Items { get; set; }
+        public DbSet<ItemInstance> ItemInstances { get; set; }
+        public DbSet<Location> Locations { get; set; }
+        public DbSet<Operation> Operations { get; set; }
+
     }
 }
