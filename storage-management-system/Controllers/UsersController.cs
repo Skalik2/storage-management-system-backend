@@ -38,7 +38,7 @@ namespace storage_management_system.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostUser([FromBody] UserCreateDto userDto)
+        public async Task<IActionResult> PostUser([FromBody] UserCreateBasicDto userDto)
         {
             if (userDto == null)
             { 
@@ -51,7 +51,7 @@ namespace storage_management_system.Controllers
                 return NotFound($"Company with ID {userDto.CompanyId} not found.");
             }
 
-            var user = new User
+            User user = new()
             {
                 Username = userDto.Username,
                 FirstName = userDto.FirstName,
@@ -59,13 +59,13 @@ namespace storage_management_system.Controllers
                 Email = userDto.Email,
                 Password = userDto.Password,
                 CompanyId = userDto.CompanyId,
-                Company = company
+                Company = _context.Companies.Find(userDto.CompanyId),
             };
 
             try
             {
                 _context.Users.Add(user);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
             }
             catch (DbUpdateException ex)
             {
