@@ -7,9 +7,10 @@ namespace storage_management_system.Model.Entities
     public class Company
     {
         public int Id { get; set; }
+        [StringLength(50)]
         public required string Name { get; set; }
 
-        public required ICollection<User> Users { get; set; }
-        public required ICollection<Storage> Storages { get; set; }
+        public ICollection<User>? Users { get; set; }
+        public ICollection<Storage>? Storages { get; set; }
     }
 }

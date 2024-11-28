@@ -6,10 +6,10 @@ namespace storage_management_system.Model.Entities
     public class Access
     {
         public int Id { get; set; }
-        public int BoxId { get; set; }
-        public int UserId { get; set; }
 
+        public int BoxId { get; set; }
         public required Box Box { get; set; }
+        public int UserId { get; set; }
         public required User User { get; set; }
     }
 }

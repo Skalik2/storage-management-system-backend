@@ -6,9 +6,10 @@ namespace storage_management_system.Model.Entities
     public class Box
     {
         public int Id { get; set; }
+
         public int SectionId {  get; set; }
         public required Section Section { get; set; }
-        public required ICollection<Access> Accesses { get; set; }
-        public required ICollection<UserAction> UserActions { get; set; }
+        public ICollection<Access>? Accesses { get; set; }
+        public ICollection<UserAction>? UserActions { get; set; }
     }
 }

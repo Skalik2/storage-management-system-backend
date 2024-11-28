@@ -12,8 +12,8 @@ using storage_management_system.Data;
 namespace storage_management_system.Migrations
 {
     [DbContext(typeof(PgContext))]
-    [Migration("20241027163959_updateV1")]
-    partial class updateV1
+    [Migration("20241126160909_updateV1.2")]
+    partial class updateV12
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -56,15 +56,10 @@ namespace storage_management_system.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("RowId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("SectionId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("RowId");
 
                     b.HasIndex("SectionId");
 
@@ -81,7 +76,8 @@ namespace storage_management_system.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
 
@@ -98,11 +94,13 @@ namespace storage_management_system.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
 
@@ -145,7 +143,8 @@ namespace storage_management_system.Migrations
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
 
@@ -162,11 +161,13 @@ namespace storage_management_system.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
 
@@ -202,9 +203,6 @@ namespace storage_management_system.Migrations
                     b.Property<int>("RowId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("SectionId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("RowId");
@@ -223,12 +221,13 @@ namespace storage_management_system.Migrations
                     b.Property<int>("CompanyId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("LocationId")
+                    b.Property<int?>("LocationId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Model")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
 
@@ -255,15 +254,18 @@ namespace storage_management_system.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -274,7 +276,8 @@ namespace storage_management_system.Migrations
 
                     b.Property<string>("Username")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.HasKey("Id");
 
@@ -338,10 +341,6 @@ namespace storage_management_system.Migrations
 
             modelBuilder.Entity("storage_management_system.Model.Entities.Box", b =>
                 {
-                    b.HasOne("storage_management_system.Model.Entities.Row", null)
-                        .WithMany("Boxes")
-                        .HasForeignKey("RowId");
-
                     b.HasOne("storage_management_system.Model.Entities.Section", "Section")
                         .WithMany("Boxes")
                         .HasForeignKey("SectionId")
@@ -384,7 +383,7 @@ namespace storage_management_system.Migrations
             modelBuilder.Entity("storage_management_system.Model.Entities.Section", b =>
                 {
                     b.HasOne("storage_management_system.Model.Entities.Row", "Row")
-                        .WithMany()
+                        .WithMany("Sections")
                         .HasForeignKey("RowId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -402,9 +401,7 @@ namespace storage_management_system.Migrations
 
                     b.HasOne("storage_management_system.Model.Entities.Location", "Location")
                         .WithMany("Storages")
-                        .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("LocationId");
 
                     b.Navigation("Company");
 
@@ -480,7 +477,7 @@ namespace storage_management_system.Migrations
 
             modelBuilder.Entity("storage_management_system.Model.Entities.Row", b =>
                 {
-                    b.Navigation("Boxes");
+                    b.Navigation("Sections");
                 });
 
             modelBuilder.Entity("storage_management_system.Model.Entities.Section", b =>

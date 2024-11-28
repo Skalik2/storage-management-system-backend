@@ -72,14 +72,14 @@ namespace storage_management_system.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CompanyId = table.Column<int>(type: "integer", nullable: false),
                     Username = table.Column<string>(type: "text", nullable: false),
                     FirstName = table.Column<string>(type: "text", nullable: false),
                     LastName = table.Column<string>(type: "text", nullable: false),
                     Administrative = table.Column<bool>(type: "boolean", nullable: false),
                     Service = table.Column<bool>(type: "boolean", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
-                    Password = table.Column<string>(type: "text", nullable: false)
+                    Password = table.Column<string>(type: "text", nullable: false),
+                    CompanyId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -164,17 +164,11 @@ namespace storage_management_system.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    SectionId = table.Column<int>(type: "integer", nullable: false),
-                    RowId = table.Column<int>(type: "integer", nullable: true)
+                    SectionId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Box", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Box_Row_RowId",
-                        column: x => x.RowId,
-                        principalTable: "Row",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Box_Section_SectionId",
                         column: x => x.SectionId,
@@ -280,11 +274,6 @@ namespace storage_management_system.Migrations
                 name: "IX_Access_UserId",
                 table: "Access",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Box_RowId",
-                table: "Box",
-                column: "RowId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Box_SectionId",
