@@ -19,7 +19,7 @@ namespace storage_management_system.Controllers
             _context = pgContext;
         }
 
-        [HttpGet(Name = "GetAllUsers")]
+        [HttpGet("GetAllUsers")]
         public async Task<ActionResult<List<User>>> GetAllUsers()
         {
             var allUsers = await _context.Users.ToListAsync();
@@ -27,7 +27,7 @@ namespace storage_management_system.Controllers
             return Ok(allUsers);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetUserById")]
         public async Task<ActionResult<List<User>>> GetUserById(int id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -37,8 +37,8 @@ namespace storage_management_system.Controllers
             return Ok(user);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> PostUser([FromBody] UserCreateBasicDto userDto)
+        [HttpPost("PostBasicUser")]
+        public async Task<IActionResult> PostBasicUser([FromBody] UserCreateBasicDto userDto)
         {
             if (userDto == null)
             { 
@@ -57,6 +57,46 @@ namespace storage_management_system.Controllers
                 FirstName = userDto.FirstName,
                 LastName = userDto.LastName,
                 Email = userDto.Email,
+                Password = userDto.Password,
+                CompanyId = userDto.CompanyId,
+                Company = _context.Companies.Find(userDto.CompanyId),
+            };
+
+            try
+            {
+                _context.Users.Add(user);
+                _context.SaveChanges();
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, $"Database update error: {ex.Message}");
+            }
+
+            return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
+        }
+
+        [HttpPost("PostFullUser")]
+        public async Task<IActionResult> PostFullUser([FromBody] UserCreateFullDto userDto)
+        {
+            if (userDto == null)
+            {
+                return BadRequest("User data is null.");
+            }
+
+            var company = await _context.Companies.FindAsync(userDto.CompanyId);
+            if (company == null)
+            {
+                return NotFound($"Company with ID {userDto.CompanyId} not found.");
+            }
+
+            User user = new()
+            {
+                Username = userDto.Username,
+                FirstName = userDto.FirstName,
+                LastName = userDto.LastName,
+                Email = userDto.Email,
+                Administrative = userDto.Administrative,
+                Service = userDto.Service,
                 Password = userDto.Password,
                 CompanyId = userDto.CompanyId,
                 Company = _context.Companies.Find(userDto.CompanyId),
