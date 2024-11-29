@@ -12,7 +12,7 @@ using storage_management_system.Data;
 namespace storage_management_system.Migrations
 {
     [DbContext(typeof(PgContext))]
-    [Migration("20241126160909_updateV1.2")]
+    [Migration("20241129151632_updateV1.2")]
     partial class updateV12
     {
         /// <inheritdoc />

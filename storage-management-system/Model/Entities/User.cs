@@ -22,11 +22,8 @@ namespace storage_management_system.Model.Entities
 
 
         public int CompanyId { get; set; }
-        [JsonIgnore]
         public Company? Company { get; set; }
-        [JsonIgnore]
         public ICollection<Access>? Accesses { get; set; }
-        [JsonIgnore]
         public ICollection<UserAction>? UserActions { get; set; } 
     }
 }
