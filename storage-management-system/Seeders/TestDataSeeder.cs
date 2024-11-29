@@ -40,13 +40,15 @@ namespace storage_management_system.Seeders
                         Company = company,
                         FirstName = "Mirosław",
                         LastName = "Nowak",
-                        Password = "123456"
+                        Password = "123456",
+                        Email = "miroslawnowak@gmail.com"
                     },
                     new() {
                         Company = company,
                         FirstName = "Wiktor",
                         LastName = "Kowal",
-                        Password = "654321"
+                        Password = "654321",
+                        Email = "wiktorkowal@gmail.com"
                     }
                 ];
                 _context.Users.AddRange(users);

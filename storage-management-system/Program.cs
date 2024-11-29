@@ -1,13 +1,19 @@
 using Microsoft.EntityFrameworkCore;
 using storage_management_system.Data;
 using storage_management_system.Seeders;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var connection = builder.Configuration.GetConnectionString("DbConnection");
 builder.Services.AddDbContext<PgContext>(options => options.UseNpgsql(connection));
-builder.Services.AddTransient<TestDataSeeder>();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+        options.JsonSerializerOptions.WriteIndented = true;
+    }); builder.Services.AddTransient<TestDataSeeder>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

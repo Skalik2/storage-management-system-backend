@@ -9,7 +9,7 @@ namespace storage_management_system.Model.Entities
     {
         public int Id { get; set; }
         [StringLength(20)]
-        public string Username { get; set; } = string.Empty;
+        public string? Username { get; set; } = string.Empty;
         [StringLength(20)]
         public required string FirstName { get; set; }
         [StringLength(20)]
@@ -17,7 +17,7 @@ namespace storage_management_system.Model.Entities
         public bool Administrative { get; set; } = false;
         public bool Service { get; set; } = false;
         [StringLength(50)]
-        public string Email { get; set; } = string.Empty;
+        public required string Email { get; set; }
         public required string Password { get; set; }
 
 
