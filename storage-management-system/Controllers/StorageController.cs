@@ -39,5 +39,29 @@ namespace storage_management_system.Controllers
                     $"Error: {ex.Message}");
             }
         }
+
+        [HttpPost("CreateCustomStorage")]
+        public async Task<IActionResult> CreateCustomStorage([FromBody] CustomStorageDto request)
+        {
+            try
+            {
+                await _context.Database.ExecuteSqlRawAsync(
+                    @"CALL create_custom_storage_structure({0}, {1}, {2}, {3}, {4});",
+                    request.CompanyId,
+                    request.LocationId,
+                    request.RowCount,
+                    request.SectionCount,
+                    request.BoxCount
+                );
+
+                return Ok("Custom storage structure created successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Error: {ex.Message}");
+            }
+        }
+
     }
 }
