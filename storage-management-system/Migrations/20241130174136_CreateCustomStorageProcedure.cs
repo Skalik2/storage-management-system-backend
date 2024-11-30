@@ -25,12 +25,10 @@ namespace storage_management_system.Migrations
                     row_id INT;
                     section_id INT;
                 BEGIN
-                    -- Tworzenie Storage
                     INSERT INTO ""Storage"" (""CompanyId"", ""LocationId"", ""Model"")
                     VALUES (company_id, location_id, 'Custom')
                     RETURNING ""Id"" INTO storage_id;
 
-                    -- Tworzenie Row, Section i Box
                     FOR row_index IN 1..row_count_var LOOP
                         INSERT INTO ""Row"" (""StorageId"")
                         VALUES (storage_id)

@@ -63,5 +63,24 @@ namespace storage_management_system.Controllers
             }
         }
 
+        [HttpDelete("DeleteStorageById")]
+        public async Task<IActionResult> DeleteStorage(int storageId)
+        {
+            try
+            {
+                await _context.Database.ExecuteSqlRawAsync(
+                    @"CALL delete_storage_by_id({0});",
+                    storageId
+                );
+
+                return Ok("Storage and its associated structure have been deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Error: {ex.Message}");
+            }
+        }
+
     }
 }
