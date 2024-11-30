@@ -82,6 +82,54 @@ namespace storage_management_system.Controllers
             }
         }
 
+        [HttpGet("GetRowsIdsByStorageId")]
+        public async Task<IActionResult> GetRowsIdsByStorageId(int storageId)
+        {
+            try
+            {
+                var rowIds = await _context.Rows
+                    .Where(r => r.StorageId == storageId)
+                    .Select(r => r.Id)
+                    .ToListAsync();
+
+                if (rowIds == null || !rowIds.Any())
+                {
+                    return NotFound("No rows found for the specified storage.");
+                }
+
+                return Ok(rowIds);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("GetSectionsIdsByStorageId")]
+        public async Task<IActionResult> GetSectionsIdsByStorageId(int storageId)
+        {
+            try
+            {
+                var sectionIds = await _context.Sections
+                    .Where(s => s.Row.StorageId == storageId)
+                    .Select(s => s.Id)
+                    .ToListAsync();
+
+                if (sectionIds == null || !sectionIds.Any())
+                {
+                    return NotFound("No sections found for the specified storage.");
+                }
+
+                return Ok(sectionIds);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Error: {ex.Message}");
+            }
+        }
+
         [HttpGet("GetBoxesIdByStorageId")]
         public async Task<IActionResult> GetBoxesIdsForStorage(int storageId)
         {
@@ -105,6 +153,5 @@ namespace storage_management_system.Controllers
                     $"Error: {ex.Message}");
             }
         }
-
     }
 }
