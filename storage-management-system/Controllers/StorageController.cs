@@ -82,5 +82,29 @@ namespace storage_management_system.Controllers
             }
         }
 
+        [HttpGet("GetBoxesIdByStorageId")]
+        public async Task<IActionResult> GetBoxesIdsForStorage(int storageId)
+        {
+            try
+            {
+                var boxIds = await _context.Boxes
+                    .Where(b => b.Section.Row.StorageId == storageId)
+                    .Select(b => b.Id)
+                    .ToListAsync();
+
+                if (boxIds == null || !boxIds.Any())
+                {
+                    return NotFound("No boxes found for the specified storage.");
+                }
+
+                return Ok(boxIds);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Error: {ex.Message}");
+            }
+        }
+
     }
 }
