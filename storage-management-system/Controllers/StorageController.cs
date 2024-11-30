@@ -153,5 +153,27 @@ namespace storage_management_system.Controllers
                     $"Error: {ex.Message}");
             }
         }
+
+        [HttpGet("GetAllStorages")]
+        public async Task<IActionResult> GetAllStorages()
+        {
+            try
+            {
+                var storages = await _context.Storages.ToListAsync();
+
+                if (storages == null || !storages.Any())
+                {
+                    return NotFound("No storages found.");
+                }
+
+                return Ok(storages);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Error: {ex.Message}");
+            }
+        }
+
     }
 }

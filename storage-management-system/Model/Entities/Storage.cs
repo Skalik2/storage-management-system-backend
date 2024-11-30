@@ -11,6 +11,7 @@ namespace storage_management_system.Model.Entities
         [StringLength(50)]
         public string Model { get; set; } = "Custom";
         public required Company Company { get; set; }
+        public int? LocationId { get; set; }
         public Location? Location { get; set; }
         public ICollection<Row>? Rows { get; set; }
     }
