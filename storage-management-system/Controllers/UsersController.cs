@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using storage_management_system.Data;
 using storage_management_system.Model.Entities;
 using storage_management_system.Model.DataTransferObject;
+using Microsoft.AspNetCore.Authorization;
 
 namespace storage_management_system.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
