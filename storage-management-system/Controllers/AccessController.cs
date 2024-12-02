@@ -70,7 +70,7 @@ namespace storage_management_system.Controllers
             }
         }
 
-        [HttpPost("RevokeAccessFromBox")]
+        [HttpDelete("RevokeAccessFromBox")]
         public async Task<IActionResult> RevokeAccessFromBox([FromBody] AssignAccessDto request)
         {
             if (request.BoxIds == null || !request.BoxIds.Any())
@@ -109,6 +109,38 @@ namespace storage_management_system.Controllers
                 await transaction.CommitAsync();
 
                 return Ok("Access successfully revoked from the provided boxes.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Error: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("RevokeAllAccessForUser")]
+        public async Task<IActionResult> RevokeAllAccessForUser(int userId)
+        {
+            var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+            if (!userExists)
+            {
+                return NotFound($"User with ID {userId} not found.");
+            }
+
+            try
+            {
+                using var transaction = await _context.Database.BeginTransactionAsync();
+
+                var accesses = await _context.Accesses.Where(a => a.UserId == userId).ToListAsync();
+
+                if (accesses.Any())
+                {
+                    _context.Accesses.RemoveRange(accesses);
+                    await _context.SaveChangesAsync();
+                }
+
+                await transaction.CommitAsync();
+
+                return Ok($"All accesses for user with ID {userId} have been revoked.");
             }
             catch (Exception ex)
             {
