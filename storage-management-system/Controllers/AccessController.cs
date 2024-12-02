@@ -148,5 +148,52 @@ namespace storage_management_system.Controllers
                     $"Error: {ex.Message}");
             }
         }
+
+        [HttpPost("GrantAccessToAllBoxes")]
+        public async Task<IActionResult> GrantAccessToAllBoxes([FromBody] GrantFullAccessDto request)
+        {
+            if (request == null)
+            {
+                return BadRequest("Invalid data.");
+            }
+
+            try
+            {
+                var sql = @"
+                    CALL grant_access_to_all_boxes(@userId, @companyId, @storageId);
+                ";
+
+                var userIdParam = new Npgsql.NpgsqlParameter("@userId", request.UserId);
+                var companyIdParam = new Npgsql.NpgsqlParameter("@companyId", request.CompanyId);
+                var storageIdParam = new Npgsql.NpgsqlParameter("@storageId", request.StorageId);
+
+                await _context.Database.ExecuteSqlRawAsync(sql, userIdParam, companyIdParam, storageIdParam);
+
+                return Ok("Access granted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("GetAllUserBoxes")]
+        public async Task<IActionResult> GetAllUserBoxes(int userId)
+        {
+            var boxes = await _context.Accesses
+            .Where(a => a.UserId == userId)
+            .Select(a => new
+            {
+                a.BoxId
+            })
+            .ToListAsync();
+
+            if (boxes == null || boxes.Count == 0)
+            {
+                return NotFound($"User with ID {userId} has no access to any boxes.");
+            }
+
+            return Ok(boxes);
+        }
     }
 }
