@@ -6,6 +6,8 @@ using storage_management_system.Model.Entities;
 
 namespace storage_management_system.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class AccessController : ControllerBase
     {
         private readonly ILogger<AccessController> _logger;
@@ -60,6 +62,53 @@ namespace storage_management_system.Controllers
                 await transaction.CommitAsync();
 
                 return Ok("Access successfully assigned to the provided boxes.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Error: {ex.Message}");
+            }
+        }
+
+        [HttpPost("RevokeAccessFromBox")]
+        public async Task<IActionResult> RevokeAccessFromBox([FromBody] AssignAccessDto request)
+        {
+            if (request.BoxIds == null || !request.BoxIds.Any())
+            {
+                return BadRequest("BoxIds cannot be null or empty.");
+            }
+
+            var userExists = await _context.Users.AnyAsync(u => u.Id == request.UserId);
+            if (!userExists)
+            {
+                return NotFound($"User with ID {request.UserId} not found.");
+            }
+
+            try
+            {
+                using var transaction = await _context.Database.BeginTransactionAsync();
+
+                foreach (var boxId in request.BoxIds)
+                {
+                    var boxExists = await _context.Boxes.AnyAsync(b => b.Id == boxId);
+                    if (!boxExists)
+                    {
+                        return NotFound($"Box with ID {boxId} not found.");
+                    }
+
+                    var access = await _context.Accesses
+                        .FirstOrDefaultAsync(a => a.UserId == request.UserId && a.BoxId == boxId);
+
+                    if (access != null)
+                    {
+                        _context.Accesses.Remove(access);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Ok("Access successfully revoked from the provided boxes.");
             }
             catch (Exception ex)
             {
