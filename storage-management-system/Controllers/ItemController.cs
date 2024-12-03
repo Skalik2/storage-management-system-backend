@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using storage_management_system.Data;
 using storage_management_system.Model.DataTransferObject;
 using storage_management_system.Model.Entities;
@@ -79,6 +80,39 @@ namespace storage_management_system.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { Message = "Item created successfully!", ItemId = itemId });
+        }
+
+        [HttpDelete]
+        [Route("DeleteItem")]
+        public async Task<IActionResult> DeleteItem(int itemId)
+        {
+            var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == itemId);
+
+            if (item == null)
+            {
+                return NotFound($"Item with ID {itemId} not found.");
+            }
+
+            var itemPictures = await _context.ItemPictures.Where(p => p.ItemId == itemId).ToListAsync();
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
+            foreach (var picture in itemPictures)
+            {
+                var fullPath = Path.Combine(uploadsFolder, picture.ImagePath.TrimStart('/'));
+                if (System.IO.File.Exists(fullPath))
+                {
+                    System.IO.File.Delete(fullPath);
+                }
+            }
+
+            _context.ItemPictures.RemoveRange(itemPictures);
+
+            _context.Items.Remove(item);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Message = $"Item with ID {itemId} and its associated pictures have been deleted." });
         }
     }
 }
