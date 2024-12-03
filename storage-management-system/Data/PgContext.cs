@@ -29,6 +29,7 @@ namespace storage_management_system.Data
         public DbSet<ItemInstance> ItemInstances { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<Operation> Operations { get; set; }
+        public DbSet<ItemPicture> ItemPictures { get; set; }
 
     }
 }
