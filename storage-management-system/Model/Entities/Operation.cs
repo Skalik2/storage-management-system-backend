@@ -9,8 +9,6 @@ namespace storage_management_system.Model.Entities
         public int Id { get; set; }
         [StringLength(50)]
         public required string Name { get; set; }
-        [StringLength(256)]
-        public string Description { get; set; } = "No description";
 
         public ICollection<UserAction>? UserActions { get; set; }
     }

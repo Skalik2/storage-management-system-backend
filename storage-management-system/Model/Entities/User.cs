@@ -1,10 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using System.Xml.Linq;
 
 namespace storage_management_system.Model.Entities
 {
     [Table("User")]
+    [Index(nameof(Username), IsUnique = true)]
     public class User
     {
         public int Id { get; set; }

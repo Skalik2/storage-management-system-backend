@@ -240,7 +240,7 @@ namespace storage_management_system.Migrations
                     UserId = table.Column<int>(type: "integer", nullable: false),
                     OperationId = table.Column<int>(type: "integer", nullable: false),
                     Quantity = table.Column<int>(type: "integer", nullable: false),
-                    Time = table.Column<TimeSpan>(type: "interval", nullable: false)
+                    Time = table.Column<DateTime>(type: "timestamp", nullable: false)
                 },
                 constraints: table =>
                 {

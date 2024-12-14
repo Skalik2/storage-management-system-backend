@@ -12,6 +12,26 @@ namespace storage_management_system.Seeders
             SeedCompanies();
             SeedUsers();
             SeedLocations();
+            SeedOperations();
+        }
+
+        private void SeedOperations()
+        {
+            if (!_context.Operations.Any())
+            {
+                IEnumerable<Operation> operations =
+                [
+                    new Operation { Name = "Login"},
+                    new Operation { Name = "CreateUser"},
+                    new Operation { Name = "CreateItem"},
+                    new Operation { Name = "CreateLocation"},
+                    new Operation { Name = "CreateStorage"},
+                    new Operation { Name = "AssignAccess"},
+                ];
+
+                _context.Operations.AddRange(operations);
+                _context.SaveChanges();
+            }
         }
 
         private void SeedCompanies()

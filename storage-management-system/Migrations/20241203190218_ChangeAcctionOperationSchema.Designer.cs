@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using storage_management_system.Data;
@@ -11,9 +12,11 @@ using storage_management_system.Data;
 namespace storage_management_system.Migrations
 {
     [DbContext(typeof(PgContext))]
-    partial class PgContextModelSnapshot : ModelSnapshot
+    [Migration("20241203190218_ChangeAcctionOperationSchema")]
+    partial class ChangeAcctionOperationSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -297,9 +300,6 @@ namespace storage_management_system.Migrations
 
                     b.HasIndex("CompanyId");
 
-                    b.HasIndex("Username")
-                        .IsUnique();
-
                     b.ToTable("User");
                 });
 
@@ -311,7 +311,7 @@ namespace storage_management_system.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("BoxId")
+                    b.Property<int>("BoxId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Description")
@@ -323,10 +323,10 @@ namespace storage_management_system.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("Time")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<TimeSpan>("Time")
+                        .HasColumnType("interval");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -443,7 +443,9 @@ namespace storage_management_system.Migrations
                 {
                     b.HasOne("storage_management_system.Model.Entities.Box", "Box")
                         .WithMany("UserActions")
-                        .HasForeignKey("BoxId");
+                        .HasForeignKey("BoxId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("storage_management_system.Model.Entities.Operation", "Operation")
                         .WithMany("UserActions")
@@ -453,7 +455,9 @@ namespace storage_management_system.Migrations
 
                     b.HasOne("storage_management_system.Model.Entities.User", "User")
                         .WithMany("UserActions")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Box");
 
