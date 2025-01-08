@@ -13,10 +13,12 @@ namespace storage_management_system.Services
     {
         private readonly PgContext _pgContext;
         private readonly IConfiguration _configuration;
-        public JwtService(PgContext context, IConfiguration config) 
+        private readonly IPasswordHasher _passwordHasher;
+        public JwtService(PgContext context, IConfiguration config, IPasswordHasher passwordHasher) 
         { 
             _configuration = config;
             _pgContext = context;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<LoginResponseDto?> Authenticate(LoginRequestDto request)
@@ -24,7 +26,7 @@ namespace storage_management_system.Services
             if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Password))
                 return null;
             var userAccount = await _pgContext.Users.FirstOrDefaultAsync(x => x.Username == request.UserName);
-            if (userAccount == null || request.Password != userAccount.Password)
+            if (userAccount == null || !_passwordHasher.Verification(request.Password, userAccount.Password))
                 return null;
 
             var issuer = _configuration["JwtConfig:Issuer"];

@@ -53,6 +53,9 @@ namespace storage_management_system.Controllers
                 OperationId = 1,
             };
 
+            _context.UserActions.Add(UserActionSuccessLogin);
+            _context.SaveChanges();
+
             return Ok(result);
         }
     }

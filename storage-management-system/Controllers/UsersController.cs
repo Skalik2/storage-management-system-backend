@@ -4,21 +4,24 @@ using storage_management_system.Data;
 using storage_management_system.Model.Entities;
 using storage_management_system.Model.DataTransferObject;
 using Microsoft.AspNetCore.Authorization;
+using storage_management_system.Services;
 
 namespace storage_management_system.Controllers
 {
     [ApiController]
-    [Authorize]
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
         private readonly ILogger<UsersController> _logger;
-
+        private IPasswordHasher _passwordHasher;
         private readonly PgContext _context;
-        public UsersController(ILogger<UsersController> logger, PgContext pgContext)
+
+        public UsersController(ILogger<UsersController> logger, PgContext pgContext, IPasswordHasher passwordHasher)
         {
             _logger = logger;
             _context = pgContext;
+            _passwordHasher = passwordHasher;
+            
         }
 
         [HttpGet("GetAllUsers")]
@@ -59,7 +62,7 @@ namespace storage_management_system.Controllers
                 FirstName = userDto.FirstName,
                 LastName = userDto.LastName,
                 Email = userDto.Email,
-                Password = userDto.Password,
+                Password = _passwordHasher.Hash(userDto.Password),
                 CompanyId = userDto.CompanyId,
                 Company = _context.Companies.Find(userDto.CompanyId),
             };
