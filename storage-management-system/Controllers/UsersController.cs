@@ -56,6 +56,20 @@ namespace storage_management_system.Controllers
                 return NotFound($"Company with ID {userDto.CompanyId} not found.");
             }
 
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userDto.Email || u.Username == userDto.Username);
+
+            if (existingUser != null)
+            {
+                if (existingUser.Email == userDto.Email)
+                {
+                    return Conflict($"A user with the email '{userDto.Email}' already exists.");
+                }
+                if (existingUser.Username == userDto.Username)
+                {
+                    return Conflict($"A user with the username '{userDto.Username}' already exists.");
+                }
+            }
+
             User user = new()
             {
                 Username = userDto.Username,
@@ -92,6 +106,20 @@ namespace storage_management_system.Controllers
             if (company == null)
             {
                 return NotFound($"Company with ID {userDto.CompanyId} not found.");
+            }
+
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Email == userDto.Email || u.Username == userDto.Username);
+
+            if (existingUser != null)
+            {
+                if (existingUser.Email == userDto.Email)
+                {
+                    return Conflict($"A user with the email '{userDto.Email}' already exists.");
+                }
+                if (existingUser.Username == userDto.Username)
+                {
+                    return Conflict($"A user with the username '{userDto.Username}' already exists.");
+                }
             }
 
             User user = new()
