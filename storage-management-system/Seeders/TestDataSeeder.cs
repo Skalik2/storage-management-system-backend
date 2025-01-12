@@ -13,6 +13,23 @@ namespace storage_management_system.Seeders
             SeedUsers();
             SeedLocations();
             SeedOperations();
+            SeedRoles();
+        }
+
+        private void SeedRoles()
+        {
+            if (!_context.Role.Any())
+            {
+                IEnumerable<Role> roles =
+                [
+                    new Role { Name = "HeadAdmin"},
+                    new Role { Name = "Admin"},
+                    new Role { Name = "Service"}
+                ];
+
+                _context.Role.AddRange(roles);
+                _context.SaveChanges();
+            }
         }
 
         private void SeedOperations()

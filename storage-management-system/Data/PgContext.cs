@@ -30,6 +30,8 @@ namespace storage_management_system.Data
         public DbSet<Location> Locations { get; set; }
         public DbSet<Operation> Operations { get; set; }
         public DbSet<ItemPicture> ItemPictures { get; set; }
+        public DbSet<Role> Role { get; set; }
+        public DbSet<UserRole> UserRole { get; set; }
 
     }
 }

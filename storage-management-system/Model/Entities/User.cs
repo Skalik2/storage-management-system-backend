@@ -17,8 +17,6 @@ namespace storage_management_system.Model.Entities
         public required string FirstName { get; set; }
         [StringLength(20)]
         public required string LastName { get; set; }
-        public bool Administrative { get; set; } = false;
-        public bool Service { get; set; } = false;
         [StringLength(50)]
         public required string Email { get; set; }
         public required string Password { get; set; }
@@ -26,6 +24,7 @@ namespace storage_management_system.Model.Entities
 
         public int CompanyId { get; set; }
         public Company? Company { get; set; }
+        public ICollection<UserRole>? UserRoles { get; set; }
         public ICollection<Access>? Accesses { get; set; }
         public ICollection<UserAction>? UserActions { get; set; } 
     }
