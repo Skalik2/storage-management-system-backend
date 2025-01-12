@@ -22,9 +22,11 @@ namespace storage_management_system.Seeders
             {
                 IEnumerable<Role> roles =
                 [
+                    new Role { Name = "RootAdmin"},
                     new Role { Name = "HeadAdmin"},
                     new Role { Name = "Admin"},
-                    new Role { Name = "Service"}
+                    new Role { Name = "Service"},
+                    new Role { Name = "User"},
                 ];
 
                 _context.Role.AddRange(roles);
