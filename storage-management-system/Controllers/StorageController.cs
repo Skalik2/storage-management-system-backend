@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using storage_management_system.Data;
 using storage_management_system.Model.DataTransferObject;
 using storage_management_system.Model.Entities;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace storage_management_system.Controllers
 {
@@ -173,6 +175,37 @@ namespace storage_management_system.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     $"Error: {ex.Message}");
             }
+        }
+
+
+        [HttpGet("GetEmptyBoxes")]
+        public async Task<IActionResult> GetEmptyBoxes()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                              ?? User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            var emptyBoxes = await _context.Boxes
+                .Where(box => !_context.ItemInstances.Any(item => item.BoxId == box.Id)) 
+                .Join(
+                    _context.Accesses,
+                    box => box.Id,
+                    access => access.BoxId,
+                    (box, access) => new { Box = box, Access = access }
+                )
+                .Where(ba => ba.Access.UserId == userId) 
+                .Select(ba => new
+                {
+                    ba.Box.Id,
+                    SectionId = ba.Box.SectionId
+                })
+                .ToListAsync();
+
+            return Ok(emptyBoxes);
         }
 
     }
