@@ -84,6 +84,53 @@ namespace storage_management_system.Controllers
             }
         }
 
+        [HttpGet("GetEmptyAccessBoxesByUser")]
+        public async Task<IActionResult> GetEmptyBoxesByUser(int userId)
+        {
+            try
+            {
+                var result = await _context.Set<EmptyBoxDto>().FromSqlRaw(
+                    @"SELECT * FROM get_empty_access_boxes_by_user({0});",
+                    userId
+                ).ToListAsync();
+
+                if (result == null || result.Count == 0)
+                {
+                    return NotFound("No empty boxes found for the given user.");
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("GetEmptyBoxesByCompanyForUser")]
+        public async Task<IActionResult> GetEmptyBoxesByCompanyForUser(int userId)
+        {
+            try
+            {
+                var result = await _context.Set<EmptyBoxDto>()
+                    .FromSqlRaw(@"SELECT * FROM get_empty_boxes_by_company_for_user({0});", userId)
+                    .ToListAsync();
+
+                if (result == null || result.Count == 0)
+                {
+                    return NotFound("No empty boxes found for the company associated with the given user.");
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Error: {ex.Message}");
+            }
+        }
+
         [HttpGet("GetRowsIdsByStorageId")]
         public async Task<IActionResult> GetRowsIdsByStorageId(int storageId)
         {
@@ -175,37 +222,6 @@ namespace storage_management_system.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     $"Error: {ex.Message}");
             }
-        }
-
-
-        [HttpGet("GetEmptyBoxes")]
-        public async Task<IActionResult> GetEmptyBoxes()
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                              ?? User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-
-            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
-            {
-                return Unauthorized("User ID not found in token.");
-            }
-
-            var emptyBoxes = await _context.Boxes
-                .Where(box => !_context.ItemInstances.Any(item => item.BoxId == box.Id)) 
-                .Join(
-                    _context.Accesses,
-                    box => box.Id,
-                    access => access.BoxId,
-                    (box, access) => new { Box = box, Access = access }
-                )
-                .Where(ba => ba.Access.UserId == userId) 
-                .Select(ba => new
-                {
-                    ba.Box.Id,
-                    SectionId = ba.Box.SectionId
-                })
-                .ToListAsync();
-
-            return Ok(emptyBoxes);
         }
 
     }

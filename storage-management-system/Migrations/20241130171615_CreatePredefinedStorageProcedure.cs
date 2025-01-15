@@ -32,17 +32,17 @@ namespace storage_management_system.Migrations
                     RETURNING ""Id"" INTO storage_id;
 
                     IF model = 'Small' THEN
+                        row_count_var := 3;
+                        section_count := 5;
+                        box_count := 2;
+                    ELSIF model = 'Medium' THEN
                         row_count_var := 4;
                         section_count := 6;
-                        box_count := 4;
-                    ELSIF model = 'Medium' THEN
-                        row_count_var := 6;
-                        section_count := 12;
-                        box_count := 6;
+                        box_count := 3;
                     ELSIF model = 'Large' THEN
-                        row_count_var := 8;
-                        section_count := 15;
-                        box_count := 8;
+                        row_count_var := 5;
+                        section_count := 8;
+                        box_count := 4;
                     ELSE
                         RAISE EXCEPTION 'Invalid model: %', model;
                     END IF;

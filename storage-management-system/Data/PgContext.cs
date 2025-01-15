@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using storage_management_system.Model.DataTransferObject;
 using storage_management_system.Model.Entities;
 
 namespace storage_management_system.Data
@@ -17,6 +18,17 @@ namespace storage_management_system.Data
             optionsBuilder.UseNpgsql(_configuration.GetConnectionString("DbConnection"));
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<EmptyBoxDto>(entity =>
+            {
+                entity.HasNoKey();
+                entity.ToView(null);
+            });
+        }
+
         public DbSet<Company> Companies { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Storage> Storages { get; set; }
@@ -32,6 +44,8 @@ namespace storage_management_system.Data
         public DbSet<ItemPicture> ItemPictures { get; set; }
         public DbSet<Role> Role { get; set; }
         public DbSet<UserRole> UserRole { get; set; }
+
+        public DbSet<EmptyBoxDto> EmptyAccessBoxes { get; set; }
 
     }
 }
