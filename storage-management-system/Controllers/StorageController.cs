@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using storage_management_system.Data;
 using storage_management_system.Model.DataTransferObject;
@@ -8,6 +9,7 @@ using System.Security.Claims;
 
 namespace storage_management_system.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class StorageController : ControllerBase
@@ -21,6 +23,7 @@ namespace storage_management_system.Controllers
             _context = pgContext;
         }
 
+        [Authorize(Roles ="HeadAdmin")]
         [HttpPost("CreatePredefinedStorage")]
         public async Task<IActionResult> CreatePredefinedStorage([FromBody] PredefinedStorageDto request)
         {
@@ -42,6 +45,7 @@ namespace storage_management_system.Controllers
             }
         }
 
+        [Authorize(Roles ="RootAdmin")]
         [HttpPost("CreateCustomStorage")]
         public async Task<IActionResult> CreateCustomStorage([FromBody] CustomStorageDto request)
         {
@@ -65,6 +69,7 @@ namespace storage_management_system.Controllers
             }
         }
 
+        [Authorize(Roles ="HeadAdmin")]
         [HttpDelete("DeleteStorageById")]
         public async Task<IActionResult> DeleteStorage(int storageId)
         {
@@ -84,6 +89,7 @@ namespace storage_management_system.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("GetEmptyAccessBoxesByUser")]
         public async Task<IActionResult> GetEmptyBoxesByUser(int userId)
         {
@@ -108,6 +114,7 @@ namespace storage_management_system.Controllers
             }
         }
 
+        [Authorize(Roles ="HeadAdmin,Admin,Service")]
         [HttpGet("GetEmptyBoxesByCompanyForUser")]
         public async Task<IActionResult> GetEmptyBoxesByCompanyForUser(int userId)
         {
@@ -131,6 +138,7 @@ namespace storage_management_system.Controllers
             }
         }
 
+        [Authorize(Roles = "HeadAdmin,Admin")]
         [HttpGet("GetRowsIdsByStorageId")]
         public async Task<IActionResult> GetRowsIdsByStorageId(int storageId)
         {
@@ -155,6 +163,7 @@ namespace storage_management_system.Controllers
             }
         }
 
+        [Authorize(Roles = "HeadAdmin,Admin")]
         [HttpGet("GetSectionsIdsByStorageId")]
         public async Task<IActionResult> GetSectionsIdsByStorageId(int storageId)
         {
@@ -179,6 +188,7 @@ namespace storage_management_system.Controllers
             }
         }
 
+        [Authorize(Roles = "HeadAdmin,Admin")]
         [HttpGet("GetBoxesIdByStorageId")]
         public async Task<IActionResult> GetBoxesIdsForStorage(int storageId)
         {
@@ -203,6 +213,7 @@ namespace storage_management_system.Controllers
             }
         }
 
+        [Authorize(Roles = "RootAdmin")]
         [HttpGet("GetAllStorages")]
         public async Task<IActionResult> GetAllStorages()
         {
