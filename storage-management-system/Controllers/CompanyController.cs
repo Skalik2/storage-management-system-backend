@@ -1,11 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using storage_management_system.Data;
 using storage_management_system.Model.Entities;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace storage_management_system.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CompanyController : ControllerBase
@@ -19,6 +23,7 @@ namespace storage_management_system.Controllers
             _context = pgContext;
         }
 
+        [Authorize(Roles ="RootAdmin")]
         [HttpGet("GetAllCompanies")]
         public async Task<ActionResult<List<Company>>> GetAllCompanies()
         {
@@ -27,6 +32,7 @@ namespace storage_management_system.Controllers
             return Ok(allCompanies);
         }
 
+        [Authorize(Roles ="RootAdmin")]
         [HttpGet("GetCompanyByID")]
         public async Task<ActionResult<Company>> GetCompanyById(int id)
         {
@@ -35,6 +41,7 @@ namespace storage_management_system.Controllers
             return Ok(singleCompany);
         }
 
+        [Authorize(Roles ="HeadAdmin,Admin")]
         [HttpGet("GetAllUsersByCompanyId")]
         public async Task<ActionResult<Company>> GetAllUsersByCompanyId(int id)
         {
@@ -58,6 +65,7 @@ namespace storage_management_system.Controllers
             }
         }
 
+        [Authorize(Roles ="HeadAdmin")]
         [HttpPut("UpdateCompanyName")]
         public async Task<IActionResult> UpdateCompanyName(int companyId, string newName)
         {
