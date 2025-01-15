@@ -1,11 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using storage_management_system.Data;
 using storage_management_system.Model.DataTransferObject;
 using storage_management_system.Model.Entities;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace storage_management_system.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class UserRoleController : ControllerBase
@@ -17,7 +21,7 @@ namespace storage_management_system.Controllers
             _context = context;
         }
 
-
+        [Authorize(Roles ="RootAdmin")]
         [HttpPost("AddHeadAdminRole")]
         public async Task<IActionResult> AddHeadAdminRole([FromBody] UserRoleDto userRoleDto)
         {
@@ -50,6 +54,7 @@ namespace storage_management_system.Controllers
             return Ok("HeadAdmin role added successfully.");
         }
 
+        [Authorize(Roles = "HeadAdmin")]
         [HttpPost("AddAdminRole")]
         public async Task<IActionResult> AddAdminRole([FromBody] UserRoleDto userRoleDto)
         {
@@ -82,7 +87,7 @@ namespace storage_management_system.Controllers
             return Ok("Admin role added successfully.");
         }
 
-
+        [Authorize(Roles ="HeadAdmin,Admin")]
         [HttpPost("AddServiceRole")]
         public async Task<IActionResult> AddServiceRole([FromBody] UserRoleDto userRoleDto)
         {
@@ -115,6 +120,7 @@ namespace storage_management_system.Controllers
             return Ok("Service role added successfully.");
         }
 
+        [Authorize(Roles="RootAdmin")]
         [HttpDelete("RemoveHeadAdminRole")]
         public async Task<IActionResult> RemoveHeadAdminRole([FromBody] UserRoleDto userRoleDto)
         {
@@ -141,7 +147,7 @@ namespace storage_management_system.Controllers
             return Ok("HeadAdmin role removed successfully.");
         }
 
-
+        [Authorize(Roles ="HeadAdmin")]
         [HttpDelete("RemoveAdminRole")]
         public async Task<IActionResult> RemoveAdminRole([FromBody] UserRoleDto userRoleDto)
         {
@@ -168,6 +174,7 @@ namespace storage_management_system.Controllers
             return Ok("Admin role removed successfully.");
         }
 
+        [Authorize(Roles ="HeadAdmin,Admin")]
         [HttpDelete("RemoveServiceRole")]
         public async Task<IActionResult> RemoveServiceRole([FromBody] UserRoleDto userRoleDto)
         {
@@ -193,7 +200,5 @@ namespace storage_management_system.Controllers
 
             return Ok("Service role removed successfully.");
         }
-
-
     }
 }
