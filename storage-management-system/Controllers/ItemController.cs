@@ -5,9 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using storage_management_system.Data;
 using storage_management_system.Model.DataTransferObject;
 using storage_management_system.Model.Entities;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace storage_management_system.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ItemController : ControllerBase
@@ -21,8 +24,9 @@ namespace storage_management_system.Controllers
             _context = pgContext;
         }
 
-        [HttpPost]
-        [Route("CreateItem")]
+
+        [Authorize(Roles ="HeadAdmin,Admin,Service")]
+        [HttpPost("CreateItem")]
         public async Task<IActionResult> CreateItem([FromForm] ItemPictureDto model)
         {
             if (model == null || string.IsNullOrEmpty(model.Name))
@@ -82,8 +86,8 @@ namespace storage_management_system.Controllers
             return Ok(new { Message = "Item created successfully!", ItemId = itemId });
         }
 
-        [HttpDelete]
-        [Route("DeleteItem")]
+        [Authorize(Roles = "HeadAdmin,Admin")]
+        [HttpDelete("DeleteItem")]
         public async Task<IActionResult> DeleteItem(int itemId)
         {
             var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == itemId);
@@ -113,6 +117,103 @@ namespace storage_management_system.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { Message = $"Item with ID {itemId} and its associated pictures have been deleted." });
+        }
+
+        [HttpGet("GetItemsAccessibleByUser")]
+        public async Task<ActionResult<IEnumerable<ItemInstance>>> GetItemsAccessibleByUser()
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                          ?? User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    return Unauthorized("User ID not found in token.");
+                }
+
+                var accessibleBoxes = await _context.Accesses
+                    .Where(a => a.UserId == userId)
+                    .Select(a => a.BoxId)
+                    .ToListAsync();
+
+                if (!accessibleBoxes.Any())
+                {
+                    return NotFound($"No accessible boxes found for the user with ID {userId}.");
+                }
+
+                var items = await _context.ItemInstances
+                    .Where(ii => accessibleBoxes.Contains(ii.BoxId))
+                    .ToListAsync();
+
+                if (!items.Any())
+                {
+                    return NotFound($"No items found in accessible boxes for the user with ID {userId}.");
+                }
+
+                return Ok(items);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Error retrieving data for user ID: {ex.Message}");
+            }
+        }
+
+        [Authorize(Roles ="HeadAdmin,Admin,Service")]
+        [HttpPost("AssignItemToBox")]
+        public async Task<ActionResult> AssignItemToBox(int itemId, int boxId, int quantity)
+        {
+            try
+            {
+                if (quantity <= 0)
+                {
+                    return BadRequest("Quantity must be greater than zero.");
+                }
+
+                var boxExists = await _context.Boxes.AnyAsync(b => b.Id == boxId);
+                if (!boxExists)
+                {
+                    return NotFound($"Box with ID {boxId} not found.");
+                }
+
+                var itemExists = await _context.Items.AnyAsync(i => i.Id == itemId);
+                if (!itemExists)
+                {
+                    return NotFound($"Item with ID {itemId} not found.");
+                }
+
+                var existingItemInstance = await _context.ItemInstances
+                    .FirstOrDefaultAsync(ii => ii.ItemId == itemId && ii.BoxId == boxId);
+
+                if (existingItemInstance != null)
+                {
+                    existingItemInstance.Quantity += quantity;
+                    _context.ItemInstances.Update(existingItemInstance);
+                }
+                else
+                {
+                    ItemInstance newItemInstance = new()
+                    {
+                        ItemId = itemId,
+                        BoxId = boxId,
+                        Quantity = quantity,
+                        Box = _context.Boxes.Find(boxId),
+                        Item = _context.Items.Find(itemId),
+                    };
+
+                    await _context.ItemInstances.AddAsync(newItemInstance);
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Ok("Item assigned to box successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    $"Error assigning item to box: {ex.Message}");
+            }
         }
     }
 }
