@@ -8,6 +8,7 @@ using storage_management_system.Services;
 
 namespace storage_management_system.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
@@ -24,6 +25,7 @@ namespace storage_management_system.Controllers
             
         }
 
+        [Authorize(Roles = "RootAdmin")]
         [HttpGet("GetAllUsers")]
         public async Task<ActionResult<List<User>>> GetAllUsers()
         {
@@ -32,6 +34,7 @@ namespace storage_management_system.Controllers
             return Ok(allUsers);
         }
 
+        [Authorize(Roles = "RootAdmin")]
         [HttpGet("GetUserById")]
         public async Task<ActionResult<List<User>>> GetUserById(int id)
         {
@@ -42,6 +45,7 @@ namespace storage_management_system.Controllers
             return Ok(user);
         }
 
+        [Authorize(Roles = "HeadAdmin,Admin")]
         [HttpPost("PostBasicUser")]
         public async Task<IActionResult> PostBasicUser([FromBody] UserCreateBasicDto userDto)
         {
@@ -94,6 +98,7 @@ namespace storage_management_system.Controllers
             return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
 
+        [Authorize(Roles = "HeadAdmin,Admin")]
         [HttpPost("PostFullUser")]
         public async Task<IActionResult> PostFullUser([FromBody] UserCreateFullDto userDto)
         {
