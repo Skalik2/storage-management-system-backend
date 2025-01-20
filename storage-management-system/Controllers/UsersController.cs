@@ -5,6 +5,8 @@ using storage_management_system.Model.Entities;
 using storage_management_system.Model.DataTransferObject;
 using Microsoft.AspNetCore.Authorization;
 using storage_management_system.Services;
+using Microsoft.AspNetCore.Identity.Data;
+using System.Security.Claims;
 
 namespace storage_management_system.Controllers
 {
@@ -85,9 +87,24 @@ namespace storage_management_system.Controllers
                 Company = _context.Companies.Find(userDto.CompanyId),
             };
 
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            var CreateBasicUserAction = new UserAction
+            {
+                Description = $"Created basic user: {userDto.Username}",
+                Time = DateTime.UtcNow,
+                OperationId = 2,
+                UserId = int.Parse(userIdClaim.Value),
+            };
+
             try
             {
                 _context.Users.Add(user);
+                _context.UserActions.Add(CreateBasicUserAction);
                 _context.SaveChanges();
             }
             catch (DbUpdateException ex)
@@ -138,9 +155,24 @@ namespace storage_management_system.Controllers
                 Company = _context.Companies.Find(userDto.CompanyId),
             };
 
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
+            var CreateAdvancedUserAction = new UserAction
+            {
+                Description = $"Created advanced user: {userDto.Username}",
+                Time = DateTime.UtcNow,
+                OperationId = 2,
+                UserId = int.Parse(userIdClaim.Value),
+            };
+
             try
             {
                 _context.Users.Add(user);
+                _context.UserActions.Add(CreateAdvancedUserAction);
                 _context.SaveChanges();
             }
             catch (DbUpdateException ex)
