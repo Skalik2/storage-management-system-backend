@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using System.Text;
 using storage_management_system.Services;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +68,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddSingleton<IAuthorizationHandler, RootAdminAuthorizationHandler>();
 
 var app = builder.Build();
 

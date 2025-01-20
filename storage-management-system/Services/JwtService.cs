@@ -25,9 +25,14 @@ namespace storage_management_system.Services
         {
             if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.Password))
                 return null;
-            var userAccount = await _pgContext.Users.FirstOrDefaultAsync(x => x.Username == request.UserName);
+            var userAccount = await _pgContext.Users
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(x => x.Username == request.UserName);
             if (userAccount == null || !_passwordHasher.Verification(request.Password, userAccount.Password))
                 return null;
+
+            var userRoles = userAccount.UserRoles.Select(ur => ur.Role.Name).ToList();
 
             var issuer = _configuration["JwtConfig:Issuer"];
             var audience = _configuration["JwtConfig:Audience"];
@@ -35,12 +40,16 @@ namespace storage_management_system.Services
             var tokenValidityMins = _configuration.GetValue<int>("JwtConfig:TokenValidityMins");
             var tokenExpiryTime = DateTime.UtcNow.AddMinutes(tokenValidityMins);
 
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Name, request.UserName),
+                new Claim(JwtRegisteredClaimNames.Sub, userAccount.Id.ToString()),
+            };
+            claims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(JwtRegisteredClaimNames.Name, request.UserName),
-                }),
+                Subject = new ClaimsIdentity(claims),
                 Issuer = issuer,
                 Audience = audience,
                 Expires = tokenExpiryTime,
