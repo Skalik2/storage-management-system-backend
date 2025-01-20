@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using storage_management_system.Data;
 using storage_management_system.Model.DataTransferObject;
@@ -6,6 +7,7 @@ using storage_management_system.Model.Entities;
 
 namespace storage_management_system.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class AccessController : ControllerBase
@@ -19,6 +21,7 @@ namespace storage_management_system.Controllers
             _context = pgContext;
         }
 
+        [Authorize(Roles ="HeadAdmin,Admin")]
         [HttpPost("AssignAccessToBox")]
         public async Task<IActionResult> AssignAccessToBox([FromBody] AssignAccessDto request)
         {
@@ -70,6 +73,7 @@ namespace storage_management_system.Controllers
             }
         }
 
+        [Authorize(Roles = "HeadAdmin,Admin")]
         [HttpDelete("RevokeAccessFromBox")]
         public async Task<IActionResult> RevokeAccessFromBox([FromBody] AssignAccessDto request)
         {
@@ -117,6 +121,7 @@ namespace storage_management_system.Controllers
             }
         }
 
+        [Authorize(Roles = "HeadAdmin,Admin")]
         [HttpDelete("RevokeAllAccessForUser")]
         public async Task<IActionResult> RevokeAllAccessForUser(int userId)
         {
@@ -149,6 +154,7 @@ namespace storage_management_system.Controllers
             }
         }
 
+        [Authorize(Roles = "HeadAdmin,Admin")]
         [HttpPost("GrantAccessToAllBoxes")]
         public async Task<IActionResult> GrantAccessToAllBoxes([FromBody] GrantFullAccessDto request)
         {
@@ -177,6 +183,7 @@ namespace storage_management_system.Controllers
             }
         }
 
+        [Authorize(Roles = "HeadAdmin,Admin")]
         [HttpGet("GetAllUserBoxes")]
         public async Task<IActionResult> GetAllUserBoxes(int userId)
         {
