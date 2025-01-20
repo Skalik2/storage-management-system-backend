@@ -15,6 +15,7 @@ namespace storage_management_system.Controllers
             _context = pgContext;
         }
 
+        [Authorize(Roles = "RootAdmin")]
         [HttpGet("GetUserActionsByUserId")]
         public async Task<IActionResult> GetUserActionsByUserId(int userId)
         {
