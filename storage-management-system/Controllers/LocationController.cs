@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using storage_management_system.Data;
 using storage_management_system.Model.DataTransferObject;
@@ -6,6 +7,7 @@ using storage_management_system.Model.Entities;
 
 namespace storage_management_system.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class LocationController : ControllerBase
@@ -17,6 +19,7 @@ namespace storage_management_system.Controllers
             _context = context;
         }
 
+        [Authorize(Roles ="HeadAdmin")]
         [HttpPost("AddLocation")]
         public async Task<IActionResult> AddLocation([FromBody] LocationDto locationDto)
         {
@@ -36,6 +39,7 @@ namespace storage_management_system.Controllers
             return CreatedAtAction(nameof(GetLocationById), new { id = newLocation.Id }, newLocation);
         }
 
+        [Authorize(Roles = "RootAdmin")]
         [HttpGet("GetLocationById")]
         public async Task<IActionResult> GetLocationById(int id)
         {
@@ -48,6 +52,7 @@ namespace storage_management_system.Controllers
             return Ok(location);
         }
 
+        [Authorize(Roles = "HeadAdmin")]
         [HttpPut("UpdateLocation")]
         public async Task<IActionResult> UpdateLocation(int id, [FromBody] LocationDto locationDto)
         {
@@ -70,6 +75,7 @@ namespace storage_management_system.Controllers
             return Ok(location);
         }
 
+        [Authorize(Roles = "HeadAdmin")]
         [HttpDelete("DeleteLocation")]
         public async Task<IActionResult> DeleteLocation(int id)
         {
