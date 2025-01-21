@@ -48,10 +48,32 @@ namespace storage_management_system.Controllers
                 RoleId = 2
             };
 
-            _context.UserRole.Add(userRole);
-            await _context.SaveChangesAsync();
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
 
-            return Ok("HeadAdmin role added successfully.");
+            var UserAction = new UserAction
+            {
+                Description = $"Head admin role assigned to userId: {userRoleDto.UserId}",
+                Time = DateTime.UtcNow,
+                OperationId = 6,
+                UserId = int.Parse(userIdClaim.Value),
+            };
+
+            try
+            {
+                _context.UserRole.Add(userRole);
+                _context.UserActions.Add(UserAction);
+                await _context.SaveChangesAsync();
+
+                return Ok("HeadAdmin role added successfully.");
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, $"Database update error: {ex.Message}");
+            }
         }
 
         [Authorize(Roles = "HeadAdmin")]
@@ -81,10 +103,32 @@ namespace storage_management_system.Controllers
                 RoleId = 3
             };
 
-            _context.UserRole.Add(userRole);
-            await _context.SaveChangesAsync();
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
 
-            return Ok("Admin role added successfully.");
+            var UserAction = new UserAction
+            {
+                Description = $"Admin role assigned to userId: {userRoleDto.UserId}",
+                Time = DateTime.UtcNow,
+                OperationId = 6,
+                UserId = int.Parse(userIdClaim.Value),
+            };
+
+            try
+            {
+                _context.UserRole.Add(userRole);
+                _context.UserActions.Add(UserAction);
+                await _context.SaveChangesAsync();
+                return Ok("Admin role added successfully.");
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, $"Database update error: {ex.Message}");
+            }
+
         }
 
         [Authorize(Roles ="HeadAdmin,Admin")]
@@ -114,10 +158,31 @@ namespace storage_management_system.Controllers
                 RoleId = 4
             };
 
-            _context.UserRole.Add(userRole);
-            await _context.SaveChangesAsync();
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
 
-            return Ok("Service role added successfully.");
+            var UserAction = new UserAction
+            {
+                Description = $"Service role assigned to userId: {userRoleDto.UserId}",
+                Time = DateTime.UtcNow,
+                OperationId = 6,
+                UserId = int.Parse(userIdClaim.Value),
+            };
+
+            try
+            {
+                _context.UserRole.Add(userRole);
+                _context.UserActions.Add(UserAction);
+                await _context.SaveChangesAsync();
+                return Ok("Service role added successfully.");
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, $"Database update error: {ex.Message}");
+            }
         }
 
         [Authorize(Roles="RootAdmin")]
@@ -141,10 +206,31 @@ namespace storage_management_system.Controllers
                 return NotFound("The user does not have the HeadAdmin role.");
             }
 
-            _context.UserRole.Remove(userRole);
-            await _context.SaveChangesAsync();
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
 
-            return Ok("HeadAdmin role removed successfully.");
+            var UserAction = new UserAction
+            {
+                Description = $"HeadAdmin role removed from userId: {userRoleDto.UserId}",
+                Time = DateTime.UtcNow,
+                OperationId = 7,
+                UserId = int.Parse(userIdClaim.Value),
+            };
+
+            try
+            {
+                _context.UserRole.Add(userRole);
+                _context.UserActions.Add(UserAction);
+                await _context.SaveChangesAsync();
+                return Ok("HeadAdmin role removed successfully.");
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, $"Database update error: {ex.Message}");
+            }
         }
 
         [Authorize(Roles ="HeadAdmin")]
@@ -168,10 +254,31 @@ namespace storage_management_system.Controllers
                 return NotFound("The user does not have the Admin role.");
             }
 
-            _context.UserRole.Remove(userRole);
-            await _context.SaveChangesAsync();
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
 
-            return Ok("Admin role removed successfully.");
+            var UserAction = new UserAction
+            {
+                Description = $"Admin role removed from userId: {userRoleDto.UserId}",
+                Time = DateTime.UtcNow,
+                OperationId = 7,
+                UserId = int.Parse(userIdClaim.Value),
+            };
+
+            try
+            {
+                _context.UserRole.Add(userRole);
+                _context.UserActions.Add(UserAction);
+                await _context.SaveChangesAsync();
+                return Ok("Admin role removed successfully.");
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, $"Database update error: {ex.Message}");
+            }
         }
 
         [Authorize(Roles ="HeadAdmin,Admin")]
@@ -195,10 +302,31 @@ namespace storage_management_system.Controllers
                 return NotFound("The user does not have the Service role.");
             }
 
-            _context.UserRole.Remove(userRole);
-            await _context.SaveChangesAsync();
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
 
-            return Ok("Service role removed successfully.");
+            var UserAction = new UserAction
+            {
+                Description = $"Service role removed from userId: {userRoleDto.UserId}",
+                Time = DateTime.UtcNow,
+                OperationId = 7,
+                UserId = int.Parse(userIdClaim.Value),
+            };
+
+            try
+            {
+                _context.UserRole.Add(userRole);
+                _context.UserActions.Add(UserAction);
+                await _context.SaveChangesAsync();
+                return Ok("Service role removed successfully.");
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, $"Database update error: {ex.Message}");
+            }
         }
     }
 }
