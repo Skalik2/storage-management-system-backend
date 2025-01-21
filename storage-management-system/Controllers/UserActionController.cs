@@ -26,7 +26,8 @@ namespace storage_management_system.Controllers
                     ua.Id,
                     ua.BoxId,
                     ua.OperationId,
-                    ua.Quantity
+                    ua.Quantity,
+                    ua.Description
                 })
                 .ToListAsync();
 

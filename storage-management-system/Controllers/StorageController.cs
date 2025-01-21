@@ -27,6 +27,12 @@ namespace storage_management_system.Controllers
         [HttpPost("CreatePredefinedStorage")]
         public async Task<IActionResult> CreatePredefinedStorage([FromBody] PredefinedStorageDto request)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
             try
             {
                 await _context.Database.ExecuteSqlRawAsync(
@@ -36,7 +42,17 @@ namespace storage_management_system.Controllers
                     request.Model
                 );
 
+                var UserAction = new UserAction
+                {
+                    Description = $"Create predefined storage",
+                    Time = DateTime.UtcNow,
+                    OperationId = 10,
+                    UserId = int.Parse(userIdClaim.Value),
+                };
+                _context.UserActions.Add(UserAction);
+                await _context.SaveChangesAsync();
                 return Ok("Storage structure created successfully.");
+
             }
             catch (Exception ex)
             {
@@ -49,6 +65,12 @@ namespace storage_management_system.Controllers
         [HttpPost("CreateCustomStorage")]
         public async Task<IActionResult> CreateCustomStorage([FromBody] CustomStorageDto request)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
             try
             {
                 await _context.Database.ExecuteSqlRawAsync(
@@ -59,6 +81,17 @@ namespace storage_management_system.Controllers
                     request.SectionCount,
                     request.BoxCount
                 );
+
+                var UserAction = new UserAction
+                {
+                    Description = $"Create custom storage",
+                    Time = DateTime.UtcNow,
+                    OperationId = 10,
+                    UserId = int.Parse(userIdClaim.Value),
+                };
+
+                _context.UserActions.Add(UserAction);
+                await _context.SaveChangesAsync();
 
                 return Ok("Custom storage structure created successfully.");
             }
@@ -73,6 +106,12 @@ namespace storage_management_system.Controllers
         [HttpDelete("DeleteStorageById")]
         public async Task<IActionResult> DeleteStorage(int storageId)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
             try
             {
                 await _context.Database.ExecuteSqlRawAsync(
@@ -80,6 +119,16 @@ namespace storage_management_system.Controllers
                     storageId
                 );
 
+                var UserAction = new UserAction
+                {
+                    Description = $"Storage Deleted",
+                    Time = DateTime.UtcNow,
+                    OperationId = 11,
+                    UserId = int.Parse(userIdClaim.Value),
+                };
+
+                _context.UserActions.Add(UserAction);
+                await _context.SaveChangesAsync();
                 return Ok("Storage and its associated structure have been deleted successfully.");
             }
             catch (Exception ex)
