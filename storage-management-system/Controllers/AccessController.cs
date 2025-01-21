@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using storage_management_system.Data;
 using storage_management_system.Model.DataTransferObject;
 using storage_management_system.Model.Entities;
+using System.Security.Claims;
 
 namespace storage_management_system.Controllers
 {
@@ -25,6 +26,12 @@ namespace storage_management_system.Controllers
         [HttpPost("AssignAccessToBox")]
         public async Task<IActionResult> AssignAccessToBox([FromBody] AssignAccessDto request)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
             if (request.BoxIds == null || !request.BoxIds.Any())
             {
                 return BadRequest("BoxIds cannot be null or empty.");
@@ -60,7 +67,15 @@ namespace storage_management_system.Controllers
                         await _context.Accesses.AddAsync(access);
                     }
                 }
+                var UserAction = new UserAction
+                {
+                    Description = $"Access assigned to box/es for userId {request.UserId}.",
+                    Time = DateTime.UtcNow,
+                    OperationId = 8,
+                    UserId = int.Parse(userIdClaim.Value),
+                };
 
+                _context.UserActions.Add(UserAction);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -77,6 +92,12 @@ namespace storage_management_system.Controllers
         [HttpDelete("RevokeAccessFromBox")]
         public async Task<IActionResult> RevokeAccessFromBox([FromBody] AssignAccessDto request)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
             if (request.BoxIds == null || !request.BoxIds.Any())
             {
                 return BadRequest("BoxIds cannot be null or empty.");
@@ -109,6 +130,15 @@ namespace storage_management_system.Controllers
                     }
                 }
 
+                var UserAction = new UserAction
+                {
+                    Description = $"Access to box/es removed from userId {request.UserId}.",
+                    Time = DateTime.UtcNow,
+                    OperationId = 9,
+                    UserId = int.Parse(userIdClaim.Value),
+                };
+
+                _context.UserActions.Add(UserAction);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -125,6 +155,12 @@ namespace storage_management_system.Controllers
         [HttpDelete("RevokeAllAccessForUser")]
         public async Task<IActionResult> RevokeAllAccessForUser(int userId)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
             var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
             if (!userExists)
             {
@@ -143,6 +179,16 @@ namespace storage_management_system.Controllers
                     await _context.SaveChangesAsync();
                 }
 
+                var UserAction = new UserAction
+                {
+                    Description = $"All access to box/es removed from userId {userId}.",
+                    Time = DateTime.UtcNow,
+                    OperationId = 9,
+                    UserId = int.Parse(userIdClaim.Value),
+                };
+
+                _context.UserActions.Add(UserAction);
+                await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 return Ok($"All accesses for user with ID {userId} have been revoked.");
@@ -158,6 +204,12 @@ namespace storage_management_system.Controllers
         [HttpPost("GrantAccessToAllBoxes")]
         public async Task<IActionResult> GrantAccessToAllBoxes([FromBody] GrantFullAccessDto request)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
             if (request == null)
             {
                 return BadRequest("Invalid data.");
@@ -174,6 +226,17 @@ namespace storage_management_system.Controllers
                 var storageIdParam = new Npgsql.NpgsqlParameter("@storageId", request.StorageId);
 
                 await _context.Database.ExecuteSqlRawAsync(sql, userIdParam, companyIdParam, storageIdParam);
+
+                var UserAction = new UserAction
+                {
+                    Description = $"Access assigned to all box/es for userId {request.UserId}.",
+                    Time = DateTime.UtcNow,
+                    OperationId = 8,
+                    UserId = int.Parse(userIdClaim.Value),
+                };
+
+                _context.UserActions.Add(UserAction);
+                await _context.SaveChangesAsync();
 
                 return Ok("Access granted successfully.");
             }
