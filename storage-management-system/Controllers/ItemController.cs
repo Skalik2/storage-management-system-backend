@@ -29,6 +29,12 @@ namespace storage_management_system.Controllers
         [HttpPost("CreateItem")]
         public async Task<IActionResult> CreateItem([FromForm] ItemPictureDto model)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
             if (model == null || string.IsNullOrEmpty(model.Name))
             {
                 return BadRequest("Invalid Submission!");
@@ -40,7 +46,16 @@ namespace storage_management_system.Controllers
                 Description = string.IsNullOrWhiteSpace(model.Description) ? "No description" : model.Description
             };
 
+            var UserAction = new UserAction
+            {
+                Description = $"Created new item [{model.Name}].",
+                Time = DateTime.UtcNow,
+                OperationId = 3,
+                UserId = int.Parse(userIdClaim.Value),
+            };
+
             _context.Add(newItem);
+            _context.UserActions.Add(UserAction);
             await _context.SaveChangesAsync();
 
             var itemId = newItem.Id;
@@ -90,6 +105,12 @@ namespace storage_management_system.Controllers
         [HttpDelete("DeleteItem")]
         public async Task<IActionResult> DeleteItem(int itemId)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
             var item = await _context.Items.FirstOrDefaultAsync(i => i.Id == itemId);
 
             if (item == null)
@@ -110,8 +131,16 @@ namespace storage_management_system.Controllers
                 }
             }
 
-            _context.ItemPictures.RemoveRange(itemPictures);
+            var UserAction = new UserAction
+            {
+                Description = $"Item id=[{itemId}] removed.",
+                Time = DateTime.UtcNow,
+                OperationId = 4,
+                UserId = int.Parse(userIdClaim.Value),
+            };
 
+            _context.ItemPictures.RemoveRange(itemPictures);
+            _context.UserActions.Add(UserAction);
             _context.Items.Remove(item);
 
             await _context.SaveChangesAsync();
@@ -164,6 +193,12 @@ namespace storage_management_system.Controllers
         [HttpPost("AssignItemToBox")]
         public async Task<ActionResult> AssignItemToBox(int itemId, int boxId, int quantity)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
             try
             {
                 if (quantity <= 0)
@@ -204,7 +239,14 @@ namespace storage_management_system.Controllers
 
                     await _context.ItemInstances.AddAsync(newItemInstance);
                 }
-
+                var UserAction = new UserAction
+                {
+                    Description = $"Item id={itemId} assigned to box id={boxId}, quantity={quantity}.",
+                    Time = DateTime.UtcNow,
+                    OperationId = 13,
+                    UserId = int.Parse(userIdClaim.Value),
+                };
+                _context.UserActions.Add(UserAction);
                 await _context.SaveChangesAsync();
 
                 return Ok("Item assigned to box successfully.");
