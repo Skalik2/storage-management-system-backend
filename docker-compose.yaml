@@ -12,7 +12,7 @@ services:
     environment:
         - POSTGRES_USER=postgres
         - POSTGRES_PASSWORD=postgres
-        - POSTGRES_DATABASE=StorageManagementSystemDB
+        - POSTGRES_DB=StorageManagementSystemDB
     ports:
     - "5433:5432"
     restart: always
@@ -37,7 +37,6 @@ services:
         - ASPNETCORE_ENVIRONMENT=Development
     networks:
         - dev 
-        
 
 volumes:
     app_data:
