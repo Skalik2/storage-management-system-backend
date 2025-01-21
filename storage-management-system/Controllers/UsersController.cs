@@ -150,7 +150,7 @@ namespace storage_management_system.Controllers
                 FirstName = userDto.FirstName,
                 LastName = userDto.LastName,
                 Email = userDto.Email,
-                Password = userDto.Password,
+                Password = _passwordHasher.Hash(userDto.Password),
                 CompanyId = userDto.CompanyId,
                 Company = _context.Companies.Find(userDto.CompanyId),
             };
