@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using storage_management_system.Data;
 using storage_management_system.Model.DataTransferObject;
 using storage_management_system.Model.Entities;
+using System.Security.Claims;
 
 namespace storage_management_system.Controllers
 {
@@ -23,6 +24,12 @@ namespace storage_management_system.Controllers
         [HttpPost("AddLocation")]
         public async Task<IActionResult> AddLocation([FromBody] LocationDto locationDto)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
             if (locationDto == null || string.IsNullOrWhiteSpace(locationDto.Address))
             {
                 return BadRequest("Address is required.");
@@ -33,7 +40,16 @@ namespace storage_management_system.Controllers
                 Address = locationDto.Address
             };
 
+            var UserAction = new UserAction
+            {
+                Description = $"Location [{locationDto.Address}] added.",
+                Time = DateTime.UtcNow,
+                OperationId = 12,
+                UserId = int.Parse(userIdClaim.Value),
+            };
+
             _context.Locations.Add(newLocation);
+            _context.UserActions.Add(UserAction);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetLocationById), new { id = newLocation.Id }, newLocation);
@@ -79,13 +95,28 @@ namespace storage_management_system.Controllers
         [HttpDelete("DeleteLocation")]
         public async Task<IActionResult> DeleteLocation(int id)
         {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token.");
+            }
+
             var location = await _context.Locations.FindAsync(id);
             if (location == null)
             {
                 return NotFound($"Location with ID {id} not found.");
             }
 
+            var UserAction = new UserAction
+            {
+                Description = $"Location [{location.Address}] removed.",
+                Time = DateTime.UtcNow,
+                OperationId = 13,
+                UserId = int.Parse(userIdClaim.Value),
+            };
+
             _context.Locations.Remove(location);
+            _context.UserActions.Add(UserAction);
             await _context.SaveChangesAsync();
 
             return NoContent();
