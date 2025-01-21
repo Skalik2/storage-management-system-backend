@@ -1,54 +1,35 @@
 ﻿using storage_management_system.Data;
 using storage_management_system.Model.Entities;
+using storage_management_system.Services;
 
 namespace storage_management_system.Seeders
 {
-    public class TestDataSeeder(PgContext context)
+    public class TestDataSeeder(PgContext context, IPasswordHasher passwordHasher)
     {
         private readonly PgContext _context = context;
+        private IPasswordHasher _passwordHasher = passwordHasher;
 
         public void Seed()
         {
             SeedCompanies();
             SeedUsers();
             SeedLocations();
-            SeedOperations();
-            SeedRoles();
+            SeeedUserRoles();
         }
 
-        private void SeedRoles()
+        private void SeeedUserRoles()
         {
-            if (!_context.Role.Any())
+            if (!_context.UserRole.Any())
             {
-                IEnumerable<Role> roles =
+                IEnumerable<UserRole> userRoles =
                 [
-                    new Role { Name = "RootAdmin"},
-                    new Role { Name = "HeadAdmin"},
-                    new Role { Name = "Admin"},
-                    new Role { Name = "Service"},
-                    new Role { Name = "User"},
+                    new UserRole {
+                        UserId = 1,
+                        RoleId = 1
+                    }
                 ];
 
-                _context.Role.AddRange(roles);
-                _context.SaveChanges();
-            }
-        }
-
-        private void SeedOperations()
-        {
-            if (!_context.Operations.Any())
-            {
-                IEnumerable<Operation> operations =
-                [
-                    new Operation { Name = "Login"},
-                    new Operation { Name = "CreateUser"},
-                    new Operation { Name = "CreateItem"},
-                    new Operation { Name = "CreateLocation"},
-                    new Operation { Name = "CreateStorage"},
-                    new Operation { Name = "AssignAccess"},
-                ];
-
-                _context.Operations.AddRange(operations);
+                _context.UserRole.AddRange(userRoles);
                 _context.SaveChanges();
             }
         }
@@ -78,15 +59,16 @@ namespace storage_management_system.Seeders
                     new() {
                         Company = company,
                         FirstName = "Mirosław",
+                        Username = "admin",
                         LastName = "Nowak",
-                        Password = "123456",
-                        Email = "miroslawnowak@gmail.com"
+                        Password = _passwordHasher.Hash("admin"),
+                        Email = "test@test.com"
                     },
                     new() {
                         Company = company,
                         FirstName = "Wiktor",
                         LastName = "Kowal",
-                        Password = "654321",
+                        Password = _passwordHasher.Hash("admin"),
                         Email = "wiktorkowal@gmail.com"
                     }
                 ];
@@ -102,10 +84,10 @@ namespace storage_management_system.Seeders
                 IEnumerable<Location> locations =
                 [
                     new() {
-                        Address = "Rzeszów, kwiatowa 5 35-121"
+                        Address = "Rzeszów, Kwiatowa 5, 35-121"
                     },
                     new() {
-                        Address = "Kraków, przemysłowa 10 21-212"
+                        Address = "Kraków, Przemysłowa 10, 21-212"
                     }
                 ];
                 _context.Locations.AddRange(locations);

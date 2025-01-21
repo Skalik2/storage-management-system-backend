@@ -18,8 +18,9 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
         options.JsonSerializerOptions.WriteIndented = true;
-    }); builder.Services.AddTransient<TestDataSeeder>();
-
+    });
+builder.Services.AddTransient<CoreDataSeeder>();
+builder.Services.AddTransient<TestDataSeeder>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -86,8 +87,11 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
-    var seeder = scope.ServiceProvider.GetRequiredService<TestDataSeeder>();
-    seeder.Seed();
+    var coreSeeder = scope.ServiceProvider.GetRequiredService<CoreDataSeeder>();
+    coreSeeder.SeedCoreData();
+
+    var additionalSeeder = scope.ServiceProvider.GetRequiredService<TestDataSeeder>();
+    additionalSeeder.Seed();
 }
 
 app.Run();
